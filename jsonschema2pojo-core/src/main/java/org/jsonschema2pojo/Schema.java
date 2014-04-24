@@ -57,6 +57,7 @@ public class Schema {
         return content;
     }
 
+    // TODO: change the name of this.  isPreProcessed?
     public boolean isGenerated() {
         return javaType != null;
     }

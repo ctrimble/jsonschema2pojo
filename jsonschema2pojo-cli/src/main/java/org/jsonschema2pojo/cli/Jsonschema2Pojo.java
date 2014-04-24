@@ -89,6 +89,19 @@ public final class Jsonschema2Pojo {
             removeOldOutput(config.getTargetDirectory());
         }
 
+        // TODO: this needs to be 2 phases.
+        // 1. analyze the schemas and produce the object graph (including nested schemas).
+        // 2. take a second pass over the schemas and fill in the fields.
+        //
+        // for( File file : sourceFiles ) {
+        //   generator.analize(file, other properties...)
+        // }
+        //
+        // generator has all the context here, just generate.
+        // generator.generate();
+        //
+        // NOTE: Why is this code in the CLI package.  Seems like this should be about configuring a generator from the core
+        // package and telling it to generate.
         for (Iterator<File> sources = config.getSource(); sources.hasNext();) {
             File source = sources.next();
 
