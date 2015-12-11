@@ -364,5 +364,16 @@ public class RuleFactory {
     public Rule<JDefinedClass, JDefinedClass> getDynamicPropertiesRule() {
         return new DynamicPropertiesRule(this);
     }
+    
+    public Rule<JClassContainer, JType> getOneOfRule() {
+        return new UnionRule(this);
+    }
+    
+    public Rule<JClassContainer, JType> getAnyOfRule() {
+        return new UnionRule(this);
+    }
 
+    public Rule<JClassContainer, JType> getAllOfRule() {
+        return new UnionRule(this);
+    }
 }
