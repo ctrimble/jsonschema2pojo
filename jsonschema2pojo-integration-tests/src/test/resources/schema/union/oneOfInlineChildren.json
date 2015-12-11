@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "schema for tracking metric collection",
+  "oneOf": [
+    {
+    	"type": "object",
+    	"properties": {
+    		"name": {
+    		    "type": "string"
+    	    }
+    	}
+    },
+    {
+    	"type": "object",
+     	"properties": {
+    		"id": {
+    		    "type": "string"
+    	    }
+    	}
+    }
+  ]
+}
