@@ -55,8 +55,8 @@ public class Jsonschema2PojoTaskIT {
      * classpath element being read and no new type being generated. To test the
      * result, we need to compile with the same custom classpath.
      */
-    private List<String> buildCustomClasspath() {
-        return asList(new File("target/custom-libs/de.flapdoodle.embedmongo-1.18.jar").getAbsolutePath());
+    private List<File> buildCustomClasspath() {
+        return asList(new File("target/custom-libs/de.flapdoodle.embedmongo-1.18.jar"));
     }
 
     @Test

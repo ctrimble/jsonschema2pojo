@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.sun.codemodel.JType;
 import org.joda.time.LocalDate;
 import org.jsonschema2pojo.Schema;
+import org.jsonschema2pojo.integration.util.JsonSchema2PojoRule;
 import org.jsonschema2pojo.rules.FormatRule;
 import org.jsonschema2pojo.rules.Rule;
 import org.jsonschema2pojo.rules.RuleFactory;
@@ -29,16 +30,17 @@ import java.lang.reflect.Method;
 
 import static org.hamcrest.Matchers.is;
 import static org.jsonschema2pojo.integration.util.CodeGenerationHelper.config;
-import static org.jsonschema2pojo.integration.util.CodeGenerationHelper.generateAndCompile;
 import static org.junit.Assert.assertThat;
 
 public class CustomRuleFactoryIT {
+
+    public @org.junit.Rule JsonSchema2PojoRule schemaRule = new JsonSchema2PojoRule();
 
     @Test
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void customAnnotatorIsAbleToAddCustomAnnotations() throws ClassNotFoundException, SecurityException, NoSuchMethodException {
 
-        ClassLoader resultsClassLoader = generateAndCompile("/schema/format/formattedProperties.json", "com.example",
+        ClassLoader resultsClassLoader = schemaRule.generateAndCompile("/schema/format/formattedProperties.json", "com.example",
                 config("customRuleFactory", TestRuleFactory.class.getName()));
 
         Class generatedType = resultsClassLoader.loadClass("com.example.FormattedProperties");

@@ -17,23 +17,27 @@
 package org.jsonschema2pojo.integration.json;
 
 import static org.hamcrest.Matchers.*;
-import static org.jsonschema2pojo.integration.util.CodeGenerationHelper.*;
+import static org.jsonschema2pojo.integration.util.CodeGenerationHelper.config;
 import static org.junit.Assert.*;
 
 import java.util.List;
 
+import org.jsonschema2pojo.integration.util.JsonSchema2PojoRule;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RealJsonExamplesIT {
 
+    public @Rule JsonSchema2PojoRule schemaRule = new JsonSchema2PojoRule();
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Test
     public void getUserDataProducesValidTypes() throws Exception {
 
-        ClassLoader resultsClassLoader = generateAndCompile("/json/examples/GetUserData.json", "com.example",
+        ClassLoader resultsClassLoader = schemaRule.generateAndCompile("/json/examples/GetUserData.json", "com.example",
                 config("sourceType", "json",
                         "useLongIntegers", true));
 
@@ -56,7 +60,7 @@ public class RealJsonExamplesIT {
     @Test
     public void torrentProducesValidTypes() throws Exception {
 
-        ClassLoader resultsClassLoader = generateAndCompile("/json/examples/torrent.json", "com.example",
+        ClassLoader resultsClassLoader = schemaRule.generateAndCompile("/json/examples/torrent.json", "com.example",
                 config("sourceType", "json",
                         "propertyWordDelimiters", "_"));
 

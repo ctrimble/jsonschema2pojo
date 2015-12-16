@@ -16,14 +16,15 @@
 
 package org.jsonschema2pojo.integration;
 
-import static org.jsonschema2pojo.integration.util.CodeGenerationHelper.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
 
+import org.jsonschema2pojo.integration.util.JsonSchema2PojoRule;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import com.thoughtworks.qdox.JavaDocBuilder;
@@ -34,15 +35,15 @@ import com.thoughtworks.qdox.model.Type;
 
 public class DescriptionIT {
 
+    public static @ClassRule JsonSchema2PojoRule schemaRule = new JsonSchema2PojoRule();
+
     private static JavaClass classWithDescription;
 
     @BeforeClass
     public static void generateClasses() throws ClassNotFoundException, IOException {
 
-        File outputDirectory = generate("/schema/description/description.json", "com.example");
-        File generatedJavaFile = new File(outputDirectory, "com/example/Description.java");
-
-        compile(outputDirectory);
+        schemaRule.generateAndCompile("/schema/description/description.json", "com.example");
+        File generatedJavaFile = schemaRule.source("com/example/Description.java");
 
         JavaDocBuilder javaDocBuilder = new JavaDocBuilder();
         javaDocBuilder.addSource(generatedJavaFile);

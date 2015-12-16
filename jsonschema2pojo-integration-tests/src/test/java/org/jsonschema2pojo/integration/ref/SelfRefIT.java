@@ -28,19 +28,23 @@ import java.lang.reflect.Type;
 import org.apache.commons.io.IOUtils;
 import org.jsonschema2pojo.SchemaMapper;
 import org.jsonschema2pojo.integration.util.CodeGenerationHelper;
+import org.jsonschema2pojo.integration.util.JsonSchema2PojoRule;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import com.sun.codemodel.JCodeModel;
 
 public class SelfRefIT {
 
+    public static @ClassRule JsonSchema2PojoRule staticSchemaRule = new JsonSchema2PojoRule();
+
     private static Class<?> selfRefsClass;
 
     @BeforeClass
     public static void generateAndCompileEnum() throws ClassNotFoundException {
 
-        ClassLoader selfRefsClassLoader = generateAndCompile("/schema/ref/selfRefs.json", "com.example");
+        ClassLoader selfRefsClassLoader = staticSchemaRule.generateAndCompile("/schema/ref/selfRefs.json", "com.example");
 
         selfRefsClass = selfRefsClassLoader.loadClass("com.example.SelfRefs");
 

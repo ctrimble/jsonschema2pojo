@@ -16,7 +16,9 @@
 
 package org.jsonschema2pojo.integration;
 
+import org.jsonschema2pojo.integration.util.JsonSchema2PojoRule;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
@@ -25,17 +27,17 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
-import static org.jsonschema2pojo.integration.util.CodeGenerationHelper.*;
 import static org.junit.Assert.*;
 
 public class GenericTypeIT {
+    public static @ClassRule JsonSchema2PojoRule staticSchemaRule = new JsonSchema2PojoRule();
 
     private static Class<?> classWithGenericTypes;
 
     @BeforeClass
     public static void generateAndCompileClass() throws ClassNotFoundException {
 
-        classWithGenericTypes = generateAndCompile("/schema/type/genericJavaType.json", "com.example").loadClass("com.example.GenericJavaType");
+        classWithGenericTypes = staticSchemaRule.generateAndCompile("/schema/type/genericJavaType.json", "com.example").loadClass("com.example.GenericJavaType");
 
     }
 
