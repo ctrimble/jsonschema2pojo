@@ -31,8 +31,8 @@ import java.util.Map;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.jsonschema2pojo.integration.util.JsonSchema2PojoRule;
+import org.jsonschema2pojo.integration.util.ReflectMatchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -96,7 +96,7 @@ public class IncludeAccessorsPropertiesIT {
         ClassLoader resultsClassLoader = schemaRule.generateAndCompile(path, PACKAGE, includeAccessorsFalse);
         Class generatedType = resultsClassLoader.loadClass(typeName);
 
-        assertThat("only public instance fields exist", generatedType.getDeclaredFields(), everyItemInArray(anyOf(hasModifiers(Modifier.STATIC), fieldWhitelist(), hasModifiers(Modifier.PUBLIC))));
+        assertThat("only public instance fields exist", generatedType.getDeclaredFields(), everyItemInArray(anyOf(ReflectMatchers.hasModifiers(Modifier.STATIC), fieldWhitelist(), ReflectMatchers.hasModifiers(Modifier.PUBLIC))));
     }
 
     @Test
@@ -104,42 +104,13 @@ public class IncludeAccessorsPropertiesIT {
         ClassLoader resultsClassLoader = schemaRule.generateAndCompile(path, PACKAGE, includeAccessorsTrue);
         Class generatedType = resultsClassLoader.loadClass(typeName);
 
-        assertThat("only public instance fields exist", generatedType.getDeclaredFields(), everyItemInArray(anyOf(not(hasModifiers(Modifier.PUBLIC)), fieldWhitelist())));
+        assertThat("only public instance fields exist", generatedType.getDeclaredFields(), everyItemInArray(anyOf(not(ReflectMatchers.hasModifiers(Modifier.PUBLIC)), fieldWhitelist())));
     }
 
     private static Map<String, Object> configWithIncludeAccessors(Map<String, Object> template, boolean includeAccessors) {
         Map<String, Object> config = new HashMap<String, Object>(template);
         config.put("includeAccessors", includeAccessors);
         return config;
-    }
-
-    private static <M extends Member> Matcher<M> hasModifiers(final int modifiers) {
-        return new TypeSafeMatcher<M>() {
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("has modifier ").appendValue(Modifier.toString(modifiers));
-            }
-
-            @Override
-            protected boolean matchesSafely(M item) {
-                int masked = item.getModifiers() & modifiers;
-                return masked == modifiers;
-            }
-        };
-    }
-
-    private static <M extends Member> Matcher<M> nameMatches(final Matcher<String> nameMatcher) {
-        return new TypeSafeMatcher<M>() {
-            @Override
-            public void describeTo(Description description) {
-                description.appendText("name ").appendDescriptionOf(nameMatcher);
-            }
-
-            @Override
-            protected boolean matchesSafely(M item) {
-                return nameMatcher.matches(item.getName());
-            }
-        };
     }
 
     private static <T> Matcher<T[]> everyItemInArray(final Matcher<T> itemMatcher) {
@@ -166,14 +137,14 @@ public class IncludeAccessorsPropertiesIT {
     }
 
     private static <M extends Member> Matcher<M> methodWhitelist() {
-        return nameMatches(isIn(newArrayList("setAdditionalProperty", "getAdditionalProperties")));
+        return ReflectMatchers.nameMatches(isIn(newArrayList("setAdditionalProperty", "getAdditionalProperties")));
     }
 
     private static <M extends Member> Matcher<M> fieldWhitelist() {
-        return nameMatches(isIn(newArrayList("additionalProperties")));
+        return ReflectMatchers.nameMatches(isIn(newArrayList("additionalProperties")));
     }
 
     private static <M extends Member> Matcher<M> fieldGetterOrSetter() {
-        return nameMatches(anyOf(startsWith("get"), startsWith("set")));
+        return ReflectMatchers.nameMatches(anyOf(startsWith("get"), startsWith("set")));
     }
 }
