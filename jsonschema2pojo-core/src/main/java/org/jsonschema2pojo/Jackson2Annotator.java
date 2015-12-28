@@ -115,4 +115,9 @@ public class Jackson2Annotator extends AbstractAnnotator {
     public void additionalPropertiesField(JFieldVar field, JDefinedClass clazz, String propertyName) {
         field.annotate(JsonIgnore.class);
     }
+
+    @Override
+    public void ignoreMethod(JMethod method) {
+        method.annotate(JsonIgnore.class);
+    }
 }

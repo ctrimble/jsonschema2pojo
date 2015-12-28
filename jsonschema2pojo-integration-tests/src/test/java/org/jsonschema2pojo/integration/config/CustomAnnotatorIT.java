@@ -172,6 +172,10 @@ public class CustomAnnotatorIT {
 
         }
 
+        @Override
+        public void ignoreMethod(JMethod legacyGetter) {
+        }
+
     }
 
 }

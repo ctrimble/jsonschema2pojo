@@ -130,4 +130,11 @@ public class CompositeAnnotator implements Annotator {
         }
     }
 
+    @Override
+    public void ignoreMethod(JMethod method) {
+        for (Annotator annotator : annotators) {
+            annotator.ignoreMethod(method);
+        }
+    }
+
 }

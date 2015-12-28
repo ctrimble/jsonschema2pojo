@@ -41,6 +41,12 @@ import com.sun.codemodel.JVar;
  *      /tools.ietf.org/html/draft-zyp-json-schema-03#section-5.6</a>
  */
 public class AdditionalPropertiesRule implements Rule<JDefinedClass, JDefinedClass> {
+    
+    public static final String FIELD_NAME = "$additionalProperties";  // there is no room for this to be a constant.
+    public static final String GETTER_NAME = "additionalProperties";
+    public static final String LEGACY_GETTER_NAME = "getAdditionalProperties";
+    public static final String SETTER_NAME = "setAdditionalProperty";
+    public static final String BUILDER_NAME = "withAdditionalProperty";
 
     private final RuleFactory ruleFactory;
 
@@ -107,7 +113,11 @@ public class AdditionalPropertiesRule implements Rule<JDefinedClass, JDefinedCla
 
         JFieldVar field = addAdditionalPropertiesField(jclass, propertyType);
 
-        addGetter(jclass, field);
+        JMethod getter = addGetter(jclass, field);
+        
+        if( jclass.getMethod(LEGACY_GETTER_NAME, new JType[]{}) == null ) {
+            addLegacyGetter(jclass, getter);
+        }
 
         addSetter(jclass, propertyType, field);
 
@@ -117,6 +127,8 @@ public class AdditionalPropertiesRule implements Rule<JDefinedClass, JDefinedCla
 
         return jclass;
     }
+    
+    
 
     private JFieldVar addAdditionalPropertiesField(JDefinedClass jclass, JType propertyType) {
         JClass propertiesMapType = jclass.owner().ref(Map.class);
@@ -125,9 +137,9 @@ public class AdditionalPropertiesRule implements Rule<JDefinedClass, JDefinedCla
         JClass propertiesMapImplType = jclass.owner().ref(HashMap.class);
         propertiesMapImplType = propertiesMapImplType.narrow(jclass.owner().ref(String.class), propertyType.boxify());
 
-        JFieldVar field = jclass.field(JMod.PRIVATE, propertiesMapType, "additionalProperties");
+        JFieldVar field = jclass.field(JMod.PRIVATE, propertiesMapType, FIELD_NAME);
 
-        ruleFactory.getAnnotator().additionalPropertiesField(field, jclass, "additionalProperties");
+        ruleFactory.getAnnotator().additionalPropertiesField(field, jclass, FIELD_NAME);
 
         field.init(JExpr._new(propertiesMapImplType));
 
@@ -135,7 +147,7 @@ public class AdditionalPropertiesRule implements Rule<JDefinedClass, JDefinedCla
     }
 
     private void addSetter(JDefinedClass jclass, JType propertyType, JFieldVar field) {
-        JMethod setter = jclass.method(JMod.PUBLIC, void.class, "setAdditionalProperty");
+        JMethod setter = jclass.method(JMod.PUBLIC, void.class, SETTER_NAME);
 
         ruleFactory.getAnnotator().anySetter(setter);
 
@@ -148,7 +160,7 @@ public class AdditionalPropertiesRule implements Rule<JDefinedClass, JDefinedCla
     }
 
     private JMethod addGetter(JDefinedClass jclass, JFieldVar field) {
-        JMethod getter = jclass.method(JMod.PUBLIC, field.type(), "getAdditionalProperties");
+        JMethod getter = jclass.method(JMod.PUBLIC, field.type(), GETTER_NAME);
 
         ruleFactory.getAnnotator().anyGetter(getter);
 
@@ -156,8 +168,19 @@ public class AdditionalPropertiesRule implements Rule<JDefinedClass, JDefinedCla
         return getter;
     }
 
+    private JMethod addLegacyGetter(JDefinedClass jclass, JMethod getter) {
+        JMethod legacyGetter = jclass.method(JMod.PUBLIC, getter.type(), LEGACY_GETTER_NAME);
+
+        legacyGetter.annotate(Deprecated.class);
+        
+        ruleFactory.getAnnotator().ignoreMethod(legacyGetter);
+
+        legacyGetter.body()._return(JExpr._this().invoke(getter));
+        return legacyGetter;
+    }
+
     private void addBuilder(JDefinedClass jclass, JType propertyType, JFieldVar field) {
-        JMethod builder = jclass.method(JMod.PUBLIC, jclass, "withAdditionalProperty");
+        JMethod builder = jclass.method(JMod.PUBLIC, jclass, BUILDER_NAME);
 
         JVar nameParam = builder.param(String.class, "name");
         JVar valueParam = builder.param(propertyType, "value");

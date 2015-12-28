@@ -152,7 +152,7 @@ public class DynamicPropertiesRule implements Rule<JDefinedClass, JDefinedClass>
         found._then()._return(cast(returnType, valueVar));
         JBlock notFound = found._else();
 
-        JMethod getAdditionalProperties = jclass.getMethod("getAdditionalProperties", new JType[] {});
+        JMethod getAdditionalProperties = jclass.getMethod(AdditionalPropertiesRule.GETTER_NAME, new JType[] {});
         if (getAdditionalProperties != null) {
             notFound._return(cast(returnType, invoke(getAdditionalProperties).invoke("get").arg(nameParam)));
         } else {
@@ -250,7 +250,7 @@ public class DynamicPropertiesRule implements Rule<JDefinedClass, JDefinedClass>
         JBlock notFound = body._if(JOp.not(invoke(internalSetMethod).arg(nameParam).arg(valueParam)))._then();
 
         // if we have additional properties, then put value.
-        JMethod getAdditionalProperties = jclass.getMethod("getAdditionalProperties", new JType[] {});
+        JMethod getAdditionalProperties = jclass.getMethod(AdditionalPropertiesRule.GETTER_NAME, new JType[] {});
         if (getAdditionalProperties != null) {
             JType additionalPropertiesType = ((JClass) (getAdditionalProperties.type())).getTypeParameters().get(1);
             notFound.add(invoke(getAdditionalProperties).invoke("put").arg(nameParam)
@@ -278,7 +278,7 @@ public class DynamicPropertiesRule implements Rule<JDefinedClass, JDefinedClass>
         JBlock notFound = body._if(JOp.not(invoke(internalSetMethod).arg(nameParam).arg(valueParam)))._then();
 
         // if we have additional properties, then put value.
-        JMethod getAdditionalProperties = jclass.getMethod("getAdditionalProperties", new JType[] {});
+        JMethod getAdditionalProperties = jclass.getMethod(AdditionalPropertiesRule.GETTER_NAME, new JType[] {});
         if (getAdditionalProperties != null) {
             JType additionalPropertiesType = ((JClass) (getAdditionalProperties.type())).getTypeParameters().get(1);
             notFound.add(invoke(getAdditionalProperties).invoke("put").arg(nameParam)

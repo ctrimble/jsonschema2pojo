@@ -111,4 +111,9 @@ public class Jackson1Annotator extends AbstractAnnotator {
         field.annotate(JsonIgnore.class);
     }
 
+    @Override
+    public void ignoreMethod(JMethod method) {
+        method.annotate(JsonIgnore.class);
+    }
+
 }

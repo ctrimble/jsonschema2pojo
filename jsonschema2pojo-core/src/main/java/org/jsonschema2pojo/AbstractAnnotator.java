@@ -78,4 +78,8 @@ public abstract class AbstractAnnotator implements Annotator {
     public void additionalPropertiesField(JFieldVar field, JDefinedClass clazz, String propertyName) {
     }
 
+    @Override
+    public void ignoreMethod(JMethod method) {
+    }
+
 }
