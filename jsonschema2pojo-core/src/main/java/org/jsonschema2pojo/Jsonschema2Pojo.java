@@ -17,6 +17,7 @@
 package org.jsonschema2pojo;
 
 import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.io.FileUtils.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -63,8 +64,48 @@ public class Jsonschema2Pojo {
         JCodeModel codeModel = new JCodeModel();
 
         if (config.isRemoveOldOutput()) {
-            removeOldOutput(config.getTargetDirectory());
+            deleteDirectory(config.getTargetDirectory());
         }
+        
+        // scan the file system, adding each file found to the frontier.
+        
+        // while the frontier is not empty
+        
+          // take the first URI in the frontier and remove it.
+        
+          // if the URI references an existing class file,
+          // then mark the URI as existing,
+          //      add URI to the external set
+          //      and continue to next item in frontier.
+        
+          // scan the URI for refs,  for each:
+        
+            // add a graph edge for the relationship.
+        
+            // if the ref has not been explored, add it to the frontier.
+        
+          // add the URI to the discovered set.
+        
+        // detect cycle groups (in deterministic order) and collapse them by:
+        // 1. if the cycle is all extends relationships, then throw a generation exception.
+        // 1. removing all their out bound relationships, merging them, and inserting the new relationships.
+        // 2. removing all their in bound relationships, merging them, and inserting the new relationships.
+        // 3. remove all references to the schemas in the discovered set and replace them with the merged schema.
+        
+        // for each discovered schema, generate the required output document.
+        
+        // Things I need:
+        // 1. A visitor for the file system.
+        // 2. A visitor for JSON Schema
+        // 3. A representation for relationships.
+        // 4. A representation for the frontier and discovered nodes.
+        // 5. Rules for naming schemas.
+        //   1. object schemas get their name from their URI.
+        //     a. The top level schema always generate a class.
+        //     b. Nested schemas of type object will also generate a class, this might be a top level class or nested class.
+        //   2. allOf and anyOf schemas get their type name from their first parent with a computable name.
+        //   3. oneOf schemas get their type from the intersection of their children.
+        //   4. 
 
         for (Iterator<URL> sources = config.getSource(); sources.hasNext();) {
             URL source = sources.next();
@@ -116,24 +157,6 @@ public class Jsonschema2Pojo {
     private static String childQualifiedName(String parentQualifiedName, String childSimpleName) {
         String safeChildName = childSimpleName.replaceAll(NameHelper.ILLEGAL_CHARACTER_REGEX, "_");
         return isEmpty(parentQualifiedName) ? safeChildName : parentQualifiedName + "." + safeChildName;
-    }
-
-    private static void removeOldOutput(File targetDirectory) {
-        if (targetDirectory.exists()) {
-            for (File f : targetDirectory.listFiles()) {
-                delete(f);
-            }
-        }
-    }
-
-    @edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
-    private static void delete(File f) {
-        if (f.isDirectory()) {
-            for (File child : f.listFiles()) {
-                delete(child);
-            }
-        }
-        f.delete();
     }
 
     private static Annotator getAnnotator(GenerationConfig config) {
