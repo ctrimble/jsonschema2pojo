@@ -25,7 +25,6 @@ import java.lang.reflect.Modifier;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
-import org.hamcrest.TypeSafeDiagnosingMatcher;
 import org.hamcrest.TypeSafeMatcher;
 import static org.hamcrest.Matchers.*;
 

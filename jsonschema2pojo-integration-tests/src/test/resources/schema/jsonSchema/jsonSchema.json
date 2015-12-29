@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "$ref": { "type": "string" },
+    "$schema": { "type": "string" },
+    "additionalProperties": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#" }
+    },
+    "description": { "type": "string" },
+    "enum": { "type": "string" },
+    "extends": { "$ref": "#" },
+    "format": { "type": "string" },
+    "items": { "$ref": "#" },
+    "javaEnumNames": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "javaInterfaces": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "javaJsonView": { "type": "string" },
+    "javaType": { "type": "string" },
+    "maximum": { "type": "number" },
+    "maxItems": { "type": "integer" },
+    "maxLength": { "type": "integer" },
+    "minimum": { "type": "number" },
+    "minItems": { "type": "integer" },
+    "minLength": { "type": "integer" },
+    "pattern": { "type": "string" },
+    "properties": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#" }
+    },
+    "required": { 
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "title": { "type": "string" },
+    "type": { "enum": [ "array", "boolean", "integer", "number", "null", "object", "string" ] },
+    "uniqueItems": { "type": "boolean" }
+  }
+}
