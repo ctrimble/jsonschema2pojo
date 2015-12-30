@@ -5,8 +5,15 @@
     "$ref": { "type": "string" },
     "$schema": { "type": "string" },
     "additionalProperties": {
-      "type": "object",
-      "additionalProperties": { "$ref": "#" }
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": { "$ref": "#" }
+        },
+        {
+          "type": "boolean"
+        }
+      ]
     },
     "description": { "type": "string" },
     "enum": { "type": "string" },

@@ -20,6 +20,9 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.jsonschema2pojo.exception.GenerationException;
+import org.jsonschema2pojo.rules.RuleFactory;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -29,13 +32,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.sun.codemodel.JAnnotationArrayMember;
+import com.sun.codemodel.JBlock;
+import com.sun.codemodel.JClassAlreadyExistsException;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JEnumConstant;
 import com.sun.codemodel.JFieldVar;
 import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
+import com.sun.codemodel.JType;
+import com.sun.codemodel.JVar;
 
 /**
  * Annotates generated Java types using the Jackson 2.x mapping annotations.
@@ -62,7 +75,15 @@ public class Jackson2Annotator extends AbstractAnnotator {
     @Override
     public void propertyField(JFieldVar field, JDefinedClass clazz, String propertyName, JsonNode propertyNode) {
         field.annotate(JsonProperty.class).param("value", propertyName);
-        if (field.type().erasure().equals(field.type().owner().ref(Set.class))) {
+        
+        if( propertyNode.has("oneOf") ) {
+            JsonNode oneOfNode = propertyNode.get("oneOf");
+            if( !oneOfNode.isArray() ) {
+                throw new GenerationException("malformed oneOf node");
+            }
+            JType deserializer = defineDeserializer(field, clazz, propertyName, propertyNode );
+            field.annotate(JsonDeserialize.class).param("using", deserializer);
+        } else if (field.type().erasure().equals(field.type().owner().ref(Set.class))) {
             field.annotate(JsonDeserialize.class).param("as", LinkedHashSet.class);
         }
 
@@ -119,5 +140,28 @@ public class Jackson2Annotator extends AbstractAnnotator {
     @Override
     public void ignoreMethod(JMethod method) {
         method.annotate(JsonIgnore.class);
+    }
+
+    JType defineDeserializer(JFieldVar field, JDefinedClass clazz, String propertyName, JsonNode propertyNode) throws JClassAlreadyExistsException {
+        String deserializerName =
+                Character.toUpperCase(field.name().charAt(0)) +
+                field.name().substring(1) +
+                "$JsonDeserializer";
+        // add create 
+        JDefinedClass deserializer = clazz._class(JMod.STATIC | JMod.PUBLIC, deserializerName);
+        
+        deserializer._extends(clazz.owner().ref(JsonDeserializer.class).narrow(field.type()));
+        
+        JMethod deserialize = deserializer.method(JMod.PUBLIC, field.type(), "deserialize");
+        JVar parser = deserialize.param(JsonParser.class, "jp");
+        JVar context = deserialize.param(DeserializationContext.class, "context");
+        
+        JBlock body = deserialize.body();
+        
+        JVar codec = body.decl(clazz.owner().ref(ObjectCodec.class), "codec", parser.invoke("getCodec"));
+        JVar tree = body.decl(clazz.owner().ref(TreeNode.class), "tree", codec.invoke("readValueAsTree"));
+        
+        
+        return deserializer;
     }
 }

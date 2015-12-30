@@ -365,4 +365,8 @@ public class RuleFactory {
         return new DynamicPropertiesRule(this);
     }
 
+    public Rule<JClassContainer, JType> getOneOfRule() {
+        return new OneOfRule(this);
+    }
+
 }
